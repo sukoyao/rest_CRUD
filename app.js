@@ -2,6 +2,13 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
 
+// 引用 express-handlebars
+const exphbs = require('express-handlebars');
+
+// 告訴 express 使用 handlebars 當作 template engine 並預設 layout 是 main
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
+app.set('view engine', 'handlebars')
+
 // 載入 restaurant model
 const Restaurant = require('./models/restaurant')
 
@@ -23,7 +30,7 @@ db.once('open', () => {
 
 // 設定路由
 app.get('/', (req, res) => {
-  res.send('hello world')
+  return res.render('index')
 })
 
 // 列出全部 restaurant
