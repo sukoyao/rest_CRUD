@@ -25,7 +25,7 @@ db.once('open', () => {
 })
 
 // 載入 restaurant model
-const Restaurant = require('./models/restaruant')
+const Restaurant = require('./models/restaurant')
 
 app.get('/', (req, res) => {
   res.send('hello world!')
