@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
+const restaurantList = require('./restaurant.json')
 
 // 引用 express-handlebars
 const exphbs = require('express-handlebars');
@@ -8,6 +9,9 @@ const exphbs = require('express-handlebars');
 // 告訴 express 使用 handlebars 當作 template engine 並預設 layout 是 main
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
+
+// setting static files
+app.use(express.static('public'))
 
 // 載入 restaurant model
 const Restaurant = require('./models/restaurant')
@@ -30,7 +34,10 @@ db.once('open', () => {
 
 // 設定路由
 app.get('/', (req, res) => {
-  return res.render('index')
+  Restaurant.find((err, restaurants) => {    // 把 Restaurant model 所有的資料都抓回來
+    if (err) return console.error(err)
+    return res.render('index', { restaurants: restaurantList.results })  // 將資料傳給 index 樣板
+  })
 })
 
 // 列出全部 restaurant
@@ -68,6 +75,19 @@ app.post('/restaurants/:id/delete', (req, res) => {
   res.send('刪除 restaurant')
 })
 
+app.get('/restaurants/:restaurant_id', (req, res) => {
+  const restaurant = restaurantList.results.filter(restaurant => restaurant.id == req.params.restaurant_id)
+  res.render('show', { restaurant: restaurant[0] })
+})
+
+// 搜尋 restaurant
+app.get('/search', (req, res) => {
+  const keyword = req.query.keyword
+  const restaurants = restaurantList.results.filter(restaurant => {
+    return restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.name_en.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.includes(keyword)
+  })
+  res.render('index', { restaurants: restaurants, keyword: keyword })
+})
 
 app.listen(3000, () => {
   console.log('App is running!')
