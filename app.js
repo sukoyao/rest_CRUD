@@ -3,24 +3,17 @@ const app = express()
 const mongoose = require('mongoose')
 const restaurantList = require('./restaurant.json')
 const bodyParser = require('body-parser')
+const exphbs = require('express-handlebars')
+const Restaurant = require('./models/restaurant')
 
-// 設定 bodyParser
+
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// 引用 express-handlebars
-const exphbs = require('express-handlebars');
-
-// 告訴 express 使用 handlebars 當作 template engine 並預設 layout 是 main
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
-// setting static files
 app.use(express.static('public'))
 
-// 載入 restaurant model
-const Restaurant = require('./models/restaurant')
-
-// 設定連線到 mongoDB 加上 { useNewUrlParser: true }
 mongoose.connect('mongodb://localhost/restaurant', { useNewUrlParser: true })
 
 // mongoose 連線後透過 mongoose.connection 拿到 Connection 的物件
@@ -40,13 +33,8 @@ db.once('open', () => {
 app.get('/', (req, res) => {
   Restaurant.find((err, restaurants) => {    // 把 Restaurant model 所有的資料都抓回來
     if (err) return console.error(err)
-    return res.render('index', { restaurants: restaurantList.results })  // 將資料傳給 index 樣板
+    return res.render('index', { restaurants: restaurants })  // 將資料傳給 index 樣板
   })
-})
-
-// 列出全部 restaurant
-app.get('/restaurants', (req, res) => {
-  res.send('列出所有 restaurant')
 })
 
 // 新增一筆 restaurant 頁面
@@ -55,9 +43,13 @@ app.get('/restaurants/new', (req, res) => {
 })
 
 // 顯示一筆 restaurant 的詳細內容
-app.get('/restaurants/:id', (req, res) => {
-  res.send('顯示 restaurant 的詳細內容')
+app.get("/restaurants/:id", (req, res) => {
+  Restaurant.findById(req.params.id, (err, restaurant) => {
+    if (err) return console.error(err)
+    return res.render('show', { restaurant: restaurant })
+  })
 })
+
 
 // 新增一筆  restaurant
 app.post('/restaurants', (req, res) => {
@@ -80,23 +72,42 @@ app.post('/restaurants', (req, res) => {
 
 // 修改 restaurant 頁面
 app.get('/restaurants/:id/edit', (req, res) => {
-  res.send('修改 restaurant 頁面')
+  Restaurant.findById(req.params.id, (err, restaurant) => {
+    if (err) return console.error(err)
+    return res.render('edit', { restaurant: restaurant })
+  })
 })
 
 // 修改 restaurant
 app.post('/restaurants/:id', (req, res) => {
-  res.send('修改 restaurant')
+  Restaurant.findById(req.params.id, (err, restaurant) => {
+    if (err) return console.error(err)
+    restaurant.name = req.body.name
+    restaurant.category = req.body.category
+    restaurant.image = req.body.image
+    restaurant.location = req.body.location
+    restaurant.phone = req.body.phone
+    restaurant.google_map = req.body.google_map
+    restaurant.rating = req.body.rating
+    restaurant.description = req.body.description
+    restaurant.save(err => {
+      if (err) return console.error(err)
+      return res.redirect(`/restaurants/${req.params.id}`)
+    })
+  })
 })
 
 // 刪除 restaurant
 app.post('/restaurants/:id/delete', (req, res) => {
-  res.send('刪除 restaurant')
+  Restaurant.findById(req.params.id, (err, restaurant) => {
+    if (err) return console.error(err)
+    restaurant.remove(err => {
+      if (err) return console.error(err)
+      return res.redirect('/')
+    })
+  })
 })
 
-app.get('/restaurants/:restaurant_id', (req, res) => {
-  const restaurant = restaurantList.results.filter(restaurant => restaurant.id == req.params.restaurant_id)
-  res.render('show', { restaurant: restaurant[0] })
-})
 
 // 搜尋 restaurant
 app.get('/search', (req, res) => {

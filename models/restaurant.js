@@ -26,11 +26,14 @@ const restaurantSchema = new Schema({
     type: String,
     required: true,
   },
-  rating: Number,
+  rating: {
+    type: Number,
+    required: true,
+  },
   description: {
     type: String,
     required: true,
-  }
+  },
 })
 
 module.exports = mongoose.model('Restaurant', restaurantSchema)

@@ -39,9 +39,17 @@
               </span>
 
               <div>
-                <a href="#">detail</a>
-                <a href="#">edit</a>
-                <button type="submit">delete</button>
+                <div class="d-inline">
+                  <a href="/restaurants/{{this.id}}/edit" class="btn btn-primary mt-2">編輯</a>
+                </div>
+                <div class="d-inline">
+                  <a href="/restaurants/{{this.id}}" class="btn btn-primary mt-2">詳細資料</a>
+                </div>
+                <div class="d-inline">
+                  <form action="/restaurants/{{this.id}}/delete" method="POST">
+                    <button type="submit" class="btn btn-danger mt-2">刪除</button>
+                  </form>
+                </div>
               </div>
 
             </div>
