@@ -2,6 +2,10 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
 const restaurantList = require('./restaurant.json')
+const bodyParser = require('body-parser')
+
+// 設定 bodyParser
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // 引用 express-handlebars
 const exphbs = require('express-handlebars');
@@ -47,7 +51,7 @@ app.get('/restaurants', (req, res) => {
 
 // 新增一筆 restaurant 頁面
 app.get('/restaurants/new', (req, res) => {
-  res.send('新增 restaurant 頁面')
+  return res.render('new')
 })
 
 // 顯示一筆 restaurant 的詳細內容
@@ -57,7 +61,21 @@ app.get('/restaurants/:id', (req, res) => {
 
 // 新增一筆  restaurant
 app.post('/restaurants', (req, res) => {
-  res.send('建立 restaurant')
+  const restaurant = Restaurant({
+    name: req.body.name,
+    category: req.body.category,
+    image: req.body.image,
+    location: req.body.location,
+    phone: req.body.phone,
+    google_map: req.body.google_map,
+    rating: req.body.rating,
+    description: req.body.description,
+  })
+
+  restaurant.save(err => {
+    if (err) return console.error(err)
+    return res.redirect('/')
+  })
 })
 
 // 修改 restaurant 頁面
