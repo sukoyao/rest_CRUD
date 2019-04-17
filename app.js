@@ -5,7 +5,7 @@ const restaurantList = require('./restaurant.json')
 const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars')
 const Restaurant = require('./models/restaurant')
-
+const methodOverride = require('method-override')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -13,6 +13,8 @@ app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
 app.use(express.static('public'))
+
+app.use(methodOverride('_method'))
 
 mongoose.connect('mongodb://localhost/restaurant', { useNewUrlParser: true })
 
@@ -31,10 +33,12 @@ db.once('open', () => {
 
 // 設定路由
 app.get('/', (req, res) => {
-  Restaurant.find((err, restaurants) => {    // 把 Restaurant model 所有的資料都抓回來
-    if (err) return console.error(err)
-    return res.render('index', { restaurants: restaurants })  // 將資料傳給 index 樣板
-  })
+  Restaurant.find({})
+    .sort({ name: asc })
+    .exec((err, restaurants) => {    // 把 Restaurant model 所有的資料都抓回來
+      if (err) return console.error(err)
+      return res.render('index', { restaurants })  // 將資料傳給 index 樣板
+    })
 })
 
 // 新增一筆 restaurant 頁面
@@ -46,23 +50,14 @@ app.get('/restaurants/new', (req, res) => {
 app.get("/restaurants/:id", (req, res) => {
   Restaurant.findById(req.params.id, (err, restaurant) => {
     if (err) return console.error(err)
-    return res.render('show', { restaurant: restaurant })
+    return res.render('show', { restaurant })
   })
 })
 
 
 // 新增一筆  restaurant
 app.post('/restaurants', (req, res) => {
-  const restaurant = Restaurant({
-    name: req.body.name,
-    category: req.body.category,
-    image: req.body.image,
-    location: req.body.location,
-    phone: req.body.phone,
-    google_map: req.body.google_map,
-    rating: req.body.rating,
-    description: req.body.description,
-  })
+  const restaurant = Restaurant(req.body)
 
   restaurant.save(err => {
     if (err) return console.error(err)
@@ -79,17 +74,21 @@ app.get('/restaurants/:id/edit', (req, res) => {
 })
 
 // 修改 restaurant
-app.post('/restaurants/:id', (req, res) => {
+app.put('/restaurants/:id', (req, res) => {
   Restaurant.findById(req.params.id, (err, restaurant) => {
     if (err) return console.error(err)
-    restaurant.name = req.body.name
-    restaurant.category = req.body.category
-    restaurant.image = req.body.image
-    restaurant.location = req.body.location
-    restaurant.phone = req.body.phone
-    restaurant.google_map = req.body.google_map
-    restaurant.rating = req.body.rating
-    restaurant.description = req.body.description
+    // before
+    // restaurant.name = req.body.name
+    // restaurant.category = req.body.category
+    // restaurant.image = req.body.image
+    // restaurant.location = req.body.location
+    // restaurant.phone = req.body.phone
+    // restaurant.google_map = req.body.google_map
+    // restaurant.rating = req.body.rating
+    // restaurant.description = req.body.description
+    // after
+    Object.assign(restaurant, req.body)
+
     restaurant.save(err => {
       if (err) return console.error(err)
       return res.redirect(`/restaurants/${req.params.id}`)
@@ -98,7 +97,7 @@ app.post('/restaurants/:id', (req, res) => {
 })
 
 // 刪除 restaurant
-app.post('/restaurants/:id/delete', (req, res) => {
+app.delete('/restaurants/:id/delete', (req, res) => {
   Restaurant.findById(req.params.id, (err, restaurant) => {
     if (err) return console.error(err)
     restaurant.remove(err => {

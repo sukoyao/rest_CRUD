@@ -14,49 +14,60 @@
       </form>
     </div>
   </div>
-</div>
+  <div class="btn-group">
+    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+      aria-expanded="false">
+      排序方式
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="#">A > Z (升冪)</a>
+      <a class="dropdown-item" href="#">Z > A (降冪)</a>
+      <a class="dropdown-item" href="#">餐廳類型</a>
+      <a class="dropdown-item" href="#">餐廳評價</a>
+    </div>
+  </div>
 
-{{!-- restaurant list --}}
-<div class="container mt-5">
-  <a href="/restaurants/new">新增餐廳</a>
-  <div class="row">
-    <div class="col-md-10 col-12 mx-auto">
-      <div class="card-columns">
-        {{#each restaurants}}
-        <a href="/restaurants/{{this.id}}" class="text-secondary">
-          <div class="card mb-3">
-            <img class="card-img-top" src="{{this.image}}" alt="{{this.name}}">
-            <div class="card-body p-3">
-              <h6 class="card-title mb-1">{{this.name}}</h6>
+  {{!-- restaurant list --}}
+  <div class="container mt-5">
 
-              <div class="restaurant-category mb-1">
-                <i class="fas fa-utensils pr-2"></i> {{this.category}}
+    <div class="row">
+      <div class="col-md-10 col-12 mx-auto">
+        <div class="card-columns">
+          {{#each restaurants}}
+          <a href="/restaurants/{{this.id}}" class="text-secondary">
+            <div class="card mb-3">
+              <img class="card-img-top" src="{{this.image}}" alt="{{this.name}}">
+              <div class="card-body p-3">
+                <h6 class="card-title mb-1">{{this.name}}</h6>
+
+                <div class="restaurant-category mb-1">
+                  <i class="fas fa-utensils pr-2"></i> {{this.category}}
+                </div>
+
+                <span class="badge badge-pill badge-danger font-weight-normal">
+                  {{this.rating}}
+                  <i class="fas fa-star fa-xs"></i>
+                </span>
+
+                <div>
+                  <div class="d-inline">
+                    <a href="/restaurants/{{this.id}}/edit" class="btn btn-primary mt-2">編輯</a>
+                  </div>
+                  <div class="d-inline">
+                    <a href="/restaurants/{{this.id}}" class="btn btn-primary mt-2">詳細資料</a>
+                  </div>
+                  <div class="d-inline">
+                    <form action="/restaurants/{{this.id}}/delete?_method=DELETE" method="POST">
+                      <button type="submit" class="btn btn-danger mt-2">刪除</button>
+                    </form>
+                  </div>
+                </div>
+
               </div>
-
-              <span class="badge badge-pill badge-danger font-weight-normal">
-                {{this.rating}}
-                <i class="fas fa-star fa-xs"></i>
-              </span>
-
-              <div>
-                <div class="d-inline">
-                  <a href="/restaurants/{{this.id}}/edit" class="btn btn-primary mt-2">編輯</a>
-                </div>
-                <div class="d-inline">
-                  <a href="/restaurants/{{this.id}}" class="btn btn-primary mt-2">詳細資料</a>
-                </div>
-                <div class="d-inline">
-                  <form action="/restaurants/{{this.id}}/delete" method="POST">
-                    <button type="submit" class="btn btn-danger mt-2">刪除</button>
-                  </form>
-                </div>
-              </div>
-
             </div>
-          </div>
-        </a>
-        {{/each}}
+          </a>
+          {{/each}}
+        </div>
       </div>
     </div>
   </div>
-</div>
