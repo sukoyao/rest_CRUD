@@ -8,16 +8,15 @@ router.get('/new', (req, res) => {
 })
 
 // 顯示一筆 restaurant 的詳細內容
-router.get("/:id", (req, res) => {
+router.get('/:id', (req, res) => {
   Restaurant.findById(req.params.id, (err, restaurant) => {
     if (err) return console.error(err)
     return res.render('show', { restaurant })
   })
 })
 
-
 // 新增一筆  restaurant
-router.post('/', (req, res) => {
+router.put('/', (req, res) => {
   const restaurant = Restaurant(req.body)
 
   restaurant.save(err => {
@@ -30,7 +29,7 @@ router.post('/', (req, res) => {
 router.get('/:id/edit', (req, res) => {
   Restaurant.findById(req.params.id, (err, restaurant) => {
     if (err) return console.error(err)
-    return res.render('edit', { restaurant: restaurant })
+    return res.render('edit', { restaurant })
   })
 })
 
@@ -66,15 +65,6 @@ router.delete('/:id/delete', (req, res) => {
       return res.redirect('/')
     })
   })
-})
-
-// 搜尋 restaurant
-router.get('/search', (req, res) => {
-  const keyword = req.query.keyword
-  const restaurants = restaurantList.results.filter(restaurant => {
-    return restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.name_en.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.includes(keyword)
-  })
-  res.render('index', { restaurants: restaurants, keyword: keyword })
 })
 
 // 設定 /todos 路由
