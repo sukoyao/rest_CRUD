@@ -7,6 +7,7 @@ const exphbs = require('express-handlebars')
 const methodOverride = require('method-override')
 const session = require('express-session')
 const passport = require('passport')
+const flash = require('connect-flash')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -49,18 +50,24 @@ app.use(passport.session())
 // 載入 Passport config
 require('./config/passport')(passport)
 
-// 登入後可以取得使用者的資訊方便我們在 view 裡面直接使用
+app.use(flash())
+
 app.use((req, res, next) => {
   res.locals.user = req.user
   res.locals.isAuthenticated = req.isAuthenticated()
+
+  res.locals.success_msg = req.flash('success_msg')
+  res.locals.warning_msg = req.flash('warning_msg')
   next()
 })
+
 
 app.use('/', require('./routes/home'))
 app.use('/restaurants', require('./routes/restaurant'))
 app.use('/sort', require('./routes/sort'))
 app.use('/users', require('./routes/user'))
 app.use('/auth', require('./routes/auths'))
+
 // 搜尋 restaurant
 app.get('/search', (req, res) => {
   const keyword = req.query.keyword
