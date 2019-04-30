@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const Restaurant = require('../models/restaurant')
+const { authenticated } = require('../config/auth')
 
 // 設定路由
-router.get('/', (req, res) => {
+router.get('/', authenticated, (req, res) => {
   Restaurant.find({})
     .sort({
       name: 'asc'
