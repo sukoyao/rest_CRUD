@@ -8,6 +8,10 @@ const methodOverride = require('method-override')
 const session = require('express-session')
 const passport = require('passport')
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(methodOverride('_method'))
@@ -56,7 +60,7 @@ app.use('/', require('./routes/home'))
 app.use('/restaurants', require('./routes/restaurant'))
 app.use('/sort', require('./routes/sort'))
 app.use('/users', require('./routes/user'))
-
+app.use('/auth', require('./routes/auths'))
 // 搜尋 restaurant
 app.get('/search', (req, res) => {
   const keyword = req.query.keyword
