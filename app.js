@@ -33,6 +33,7 @@ db.once('open', () => {
 app.use('/', require('./routes/home'))
 app.use('/restaurants', require('./routes/restaurant'))
 app.use('/sort', require('./routes/sort'))
+app.use('/users', require('./routes/user'))
 
 // 搜尋 restaurant
 app.get('/search', (req, res) => {
