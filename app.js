@@ -17,7 +17,7 @@ app.set('view engine', 'handlebars')
 
 app.use(express.static('public'))
 
-mongoose.connect('mongodb://localhost/restaurant', { useNewUrlParser: true })
+mongoose.connect('mongodb://localhost/todo', { useNewUrlParser: true, useCreateIndex: true })
 
 // mongoose 連線後透過 mongoose.connection 拿到 Connection 的物件
 const db = mongoose.connection
@@ -34,7 +34,10 @@ db.once('open', () => {
 
 app.use(session({
   secret: 'your secret key',
+  resave: 'false',
+  saveUninitialized: 'false',
 }))
+
 // 使用 Passport 
 app.use(passport.initialize())
 app.use(passport.session())
