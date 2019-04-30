@@ -10,7 +10,7 @@ router.get('/new', authenticated, (req, res) => {
 
 // 顯示一筆 restaurant 的詳細內容
 router.get('/:id', authenticated, (req, res) => {
-  Restaurant.findById(req.params.id, (err, restaurant) => {
+  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
     return res.render('show', { restaurant })
   })
@@ -18,8 +18,18 @@ router.get('/:id', authenticated, (req, res) => {
 
 // 新增一筆  restaurant
 router.post('/', authenticated, (req, res) => {
-  const restaurant = Restaurant(req.body)
-
+  const restaurant = Restaurant({
+    name: req.body.name,
+    category: req.body.category,
+    image: req.body.image,
+    location: req.body.location,
+    phone: req.body.phone,
+    google_map: req.body.google_map,
+    rating: req.body.rating,
+    description: req.body.description,
+    // 儲存 userId
+    userId: req.user._id,
+  })
   restaurant.save(err => {
     if (err) return console.error(err)
     return res.redirect('/')
@@ -28,7 +38,7 @@ router.post('/', authenticated, (req, res) => {
 
 // 修改 restaurant 頁面
 router.get('/:id/edit', authenticated, (req, res) => {
-  Restaurant.findById(req.params.id, (err, restaurant) => {
+  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
     return res.render('edit', { restaurant })
   })
@@ -36,7 +46,7 @@ router.get('/:id/edit', authenticated, (req, res) => {
 
 // 修改 restaurant
 router.put('/:id', authenticated, (req, res) => {
-  Restaurant.findById(req.params.id, (err, restaurant) => {
+  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
     // before
     // restaurant.name = req.body.name
@@ -59,7 +69,7 @@ router.put('/:id', authenticated, (req, res) => {
 
 // 刪除 restaurant
 router.delete('/:id/delete', authenticated, (req, res) => {
-  Restaurant.findById(req.params.id, (err, restaurant) => {
+  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
     restaurant.remove(err => {
       if (err) return console.error(err)
