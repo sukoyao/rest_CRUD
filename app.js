@@ -5,6 +5,8 @@ const restaurantList = require('./restaurant.json')
 const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars')
 const methodOverride = require('method-override')
+const session = require('express-session')
+const passport = require('passport')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -28,6 +30,22 @@ db.on('error', () => {
 // 連線成功
 db.once('open', () => {
   console.log('mongodb connected!')
+})
+
+app.use(session({
+  secret: 'your secret key',
+}))
+// 使用 Passport 
+app.use(passport.initialize())
+app.use(passport.session())
+
+// 載入 Passport config
+require('./config/passport')(passport)
+
+// 登入後可以取得使用者的資訊方便我們在 view 裡面直接使用
+app.use((req, res, next) => {
+  res.locals.user = req.user
+  next()
 })
 
 app.use('/', require('./routes/home'))
