@@ -2,7 +2,7 @@
 
 只要是喜歡的餐廳，就把它記錄下來吧。
 
-![image](picture or gif url)
+![image](pic.png)
 
 # Getting Started
 
