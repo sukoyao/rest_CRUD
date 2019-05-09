@@ -3,61 +3,53 @@ const router = express.Router()
 const Restaurant = require('../models/restaurant')
 const { authenticated } = require('../config/auth')
 
-// 新增一筆 restaurant 頁面
+// 列出全部 餐廳
+router.get('/', authenticated, (req, res) => {
+  res.send('列出所有 餐廳')
+})
+
+// 新增一筆 餐廳 頁面
 router.get('/new', authenticated, (req, res) => {
   return res.render('new')
 })
 
-// 顯示一筆 restaurant 的詳細內容
-router.get('/:id', authenticated, (req, res) => {
-  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
-    if (err) return console.error(err)
-    return res.render('show', { restaurant })
-  })
-})
-
-// 新增一筆  restaurant
+// 新增一筆 餐廳
 router.post('/', authenticated, (req, res) => {
-  const restaurant = Restaurant({
-    name: req.body.name,
-    category: req.body.category,
-    image: req.body.image,
-    location: req.body.location,
-    phone: req.body.phone,
-    google_map: req.body.google_map,
-    rating: req.body.rating,
-    description: req.body.description,
-    // 儲存 userId
-    userId: req.user._id,
-  })
+  // 將使用者送出的 req.body 作為參數傳入 Restaurant 物件使用，即可賦予資料
+  const restaurant = Restaurants({ ...req.body, userId: req.user._id })
+
   restaurant.save(err => {
     if (err) return console.error(err)
     return res.redirect('/')
   })
 })
 
-// 修改 restaurant 頁面
-router.get('/:id/edit', authenticated, (req, res) => {
+// 顯示一筆 餐廳 的詳細內容
+router.get('/:id', authenticated, (req, res) => {
   Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
-    return res.render('edit', { restaurant })
+    return res.render('show', {
+      restaurant: restaurant
+    })
   })
 })
 
-// 修改 restaurant
+// 修改 餐廳 頁面
+router.get('/:id/edit', authenticated, (req, res) => {
+  Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
+    if (err) return console.error(err)
+    return res.render('edit', {
+      restaurant: restaurant
+    })
+  })
+})
+
+// 修改 餐廳
 router.put('/:id', authenticated, (req, res) => {
   Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
-    // before
-    // restaurant.name = req.body.name
-    // restaurant.category = req.body.category
-    // restaurant.image = req.body.image
-    // restaurant.location = req.body.location
-    // restaurant.phone = req.body.phone
-    // restaurant.google_map = req.body.google_map
-    // restaurant.rating = req.body.rating
-    // restaurant.description = req.body.description
-    // after
+
+    // 更新表單資料，Object.assign(target array, ...sources array)
     Object.assign(restaurant, req.body)
 
     restaurant.save(err => {
@@ -67,7 +59,7 @@ router.put('/:id', authenticated, (req, res) => {
   })
 })
 
-// 刪除 restaurant
+// 刪除 餐廳
 router.delete('/:id/delete', authenticated, (req, res) => {
   Restaurant.findOne({ _id: req.params.id, userId: req.user._id }, (err, restaurant) => {
     if (err) return console.error(err)
@@ -78,5 +70,4 @@ router.delete('/:id/delete', authenticated, (req, res) => {
   })
 })
 
-// 設定 /todos 路由
 module.exports = router

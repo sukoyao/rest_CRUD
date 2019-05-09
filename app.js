@@ -1,82 +1,86 @@
 const express = require('express')
-const app = express()
-const mongoose = require('mongoose')
-const restaurantList = require('./restaurant.json')
-const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars')
+const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
 const session = require('express-session')
 const passport = require('passport')
 const flash = require('connect-flash')
+const app = express()
+const Restaurant = require('./models/restaurant')
+const port = 3000
 
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config()
+  require('dotenv').config() // 使用 dotenv 讀取 .env 檔案
 }
 
-app.use(bodyParser.urlencoded({ extended: true }))
-
-app.use(methodOverride('_method'))
-
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
-app.set('view engine', 'handlebars')
-
-app.use(express.static('public'))
-
-mongoose.connect('mongodb://localhost/todo', { useNewUrlParser: true, useCreateIndex: true })
-
-// mongoose 連線後透過 mongoose.connection 拿到 Connection 的物件
+// setting mongoose
+const mongoose = require('mongoose')
+mongoose.connect('mongodb://localhost/restaurants', {
+  useNewUrlParser: true,
+  useCreateIndex: true
+})
 const db = mongoose.connection
 
-// 連線異常
 db.on('error', () => {
   console.log('mongodb error!')
 })
 
-// 連線成功
 db.once('open', () => {
   console.log('mongodb connected!')
 })
 
-app.use(session({
-  secret: 'your secret key',
-  resave: 'false',
-  saveUninitialized: 'false',
-}))
+// template engine
+app.engine(
+  'handlebars',
+  exphbs({
+    defaultLayout: 'main'
+  })
+)
 
-// 使用 Passport 
+app.set('view engine', 'handlebars')
+
+app.use(express.static('public'))
+
+app.use(
+  bodyParser.urlencoded({
+    extended: true
+  })
+)
+
+app.use(methodOverride('_method'))
+
+app.use(
+  session({
+    secret: 'key',
+    resave: 'false',
+    saveUninitialized: 'false'
+  })
+)
+
+app.use(flash())
+
 app.use(passport.initialize())
 app.use(passport.session())
 
-// 載入 Passport config
 require('./config/passport')(passport)
-
-app.use(flash())
 
 app.use((req, res, next) => {
   res.locals.user = req.user
   res.locals.isAuthenticated = req.isAuthenticated()
-
   res.locals.success_msg = req.flash('success_msg')
   res.locals.warning_msg = req.flash('warning_msg')
   next()
 })
 
-
+// routes
 app.use('/', require('./routes/home'))
 app.use('/restaurants', require('./routes/restaurant'))
+app.use('/search', require('./routes/search'))
 app.use('/sort', require('./routes/sort'))
 app.use('/users', require('./routes/user'))
 app.use('/auth', require('./routes/auths'))
 
-// 搜尋 restaurant
-app.get('/search', (req, res) => {
-  const keyword = req.query.keyword
-  const restaurants = restaurantList.results.filter(restaurant => {
-    return restaurant.name.toLowerCase().includes(keyword.toLowerCase()) || restaurant.name_en.toLowerCase().includes(keyword.toLowerCase()) || restaurant.category.includes(keyword)
-  })
-  res.render('index', { restaurants: restaurants, keyword: keyword })
-})
-
-app.listen(3000, () => {
-  console.log('App is running!')
+// start and listen
+app.listen(port, () => {
+  console.log(`Express is listening on http://localhost:${port}`)
 })

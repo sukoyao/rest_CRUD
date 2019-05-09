@@ -13,7 +13,7 @@ router.get('/login', (req, res) => {
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
     successRedirect: '/',
-    failureRedirect: '/users/login',
+    failureRedirect: '/users/login'
   })(req, res, next)
 })
 
@@ -27,36 +27,37 @@ router.post('/register', (req, res) => {
   const { name, email, password, password2 } = req.body
 
   let errors = []
+
   if (!name || !email || !password || !password2) {
     errors.push({ message: '所有欄位都是必填' })
   }
   if (password !== password2) {
     errors.push({ message: '密碼輸入錯誤' })
   }
+
   if (errors.length > 0) {
     res.render('register', {
       errors,
       name,
       email,
       password,
-      password2,
+      password2
     })
   } else {
     User.findOne({ email: email }).then(user => {
       if (user) {
         errors.push({ message: '這個 Email 已經註冊過了' })
         res.render('register', {
-          errors,
           name,
           email,
           password,
-          password2,
+          password2
         })
       } else {
         const newUser = new User({
           name,
           email,
-          password,
+          password
         })
         bcrypt.genSalt(10, (err, salt) =>
           bcrypt.hash(newUser.password, salt, (err, hash) => {
